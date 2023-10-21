@@ -4,6 +4,10 @@ class UserBase(BaseModel):
     name: str
     email: str
     password: str
+    
+class ShowPostUserBase(BaseModel):
+    name: str
+    email: str
 
 class PostBase(BaseModel):
     title: str
@@ -19,5 +23,5 @@ class ShowUserBase(BaseModel):
 class SHowPostBase(BaseModel):
     title: str
     content: str
-    user: ShowUserBase
+    user: ShowPostUserBase
 
