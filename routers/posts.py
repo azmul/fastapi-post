@@ -1,15 +1,19 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from typing import Annotated
+from oauth2 import get_current_user
 
 import models, schemas, database
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/posts",
+    tags=['Blog']
+)
 
 db_dependency = Annotated[Session, Depends(database.get_db)]
 
 # CREATE Post
-@router.post("/posts", status_code=status.HTTP_201_CREATED, tags=['Blog'])
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_post(post: schemas.PostBase, db: db_dependency):
     new_post = models.Post(**post.dict())
     db.add(new_post)
@@ -18,13 +22,13 @@ async def create_post(post: schemas.PostBase, db: db_dependency):
     return new_post 
 
 # GET All Post
-@router.get("/posts", status_code=status.HTTP_200_OK, response_model=list[schemas.SHowPostBase], tags=['Blog'])
-async def read_all_posts(db: db_dependency):
+@router.get("/", status_code=status.HTTP_200_OK, response_model=list[schemas.SHowPostBase])
+async def read_all_posts(db: db_dependency, current_user: schemas.UserBase = Depends(get_current_user)):
     posts = db.query(models.Post).all()
     return posts
    
 # GET Post by ID 
-@router.get("/posts/{post_id}", status_code=status.HTTP_200_OK, response_model=schemas.SHowPostBase, tags=['Blog'])
+@router.get("/{post_id}", status_code=status.HTTP_200_OK, response_model=schemas.SHowPostBase)
 async def read_post(post_id: int, db: db_dependency):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if post is None:
@@ -32,7 +36,7 @@ async def read_post(post_id: int, db: db_dependency):
     return post
 
 # UPDATE Post by ID 
-@router.put("/posts/{post_id}", status_code=status.HTTP_202_ACCEPTED, tags=['Blog'])
+@router.put("/{post_id}", status_code=status.HTTP_202_ACCEPTED)
 async def update_post(post_id:int, post: schemas.PostBase, db: db_dependency): 
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if post is None:
@@ -42,7 +46,7 @@ async def update_post(post_id:int, post: schemas.PostBase, db: db_dependency):
     return "Updated" 
 
 # DELETE Post by ID 
-@router.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT, tags=['Blog'])
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_post(post_id: int, db: db_dependency):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
     if post is None:

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel
 
 class UserBase(BaseModel):
@@ -24,4 +25,15 @@ class SHowPostBase(BaseModel):
     title: str
     content: str
     user: ShowPostUserBase
+    
+class Login(BaseModel):
+    email: str
+    password: str
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None
